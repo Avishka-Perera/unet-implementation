@@ -127,7 +127,7 @@ class UNet(nn.Module):
         self.to(devices[0])
 
     def forward(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
-        if self.device:
+        if self.device is not None:
             batch["img"] = batch["img"].to(self.device)
         img = batch["img"]
 
