@@ -1,0 +1,3 @@
+[submodule "mt_pipe"]
+	path = mt_pipe
+	url = https://github.com/Avishka-Perera/multitask-pipeline.git
