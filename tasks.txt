@@ -1,0 +1,4 @@
+make the model
+do the training
+make the augmentations
+make the weight maps
