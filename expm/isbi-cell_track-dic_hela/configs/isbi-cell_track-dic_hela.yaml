@@ -1,8 +1,8 @@
-name: train
+name: isbi-cell_track-dic_hela
 data:
-    target: src.datasets.ISBISegment
+    target: src.datasets.ISBICellTrack
     params:
-        root: ISBI-2012-challenge
+        root: DIC-C2DH-HeLa
 learner: 
     target: src.learner.UNet
 loss:

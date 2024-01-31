@@ -1,0 +1,30 @@
+name: isbi-cell_track-phc_u373
+data:
+    target: src.datasets.ISBICellTrack
+    params:
+        root: PhC-C2DH-U373
+learner: 
+    target: src.learner.UNet
+loss:
+    target: src.loss.SegmentCrossEntropy
+    params:
+        subject_region: [92, 92, 480, 480]
+optimizer:
+    target: torch.optim.Adam
+train:
+    epochs: 2000
+    tollerance: 10
+    loader_params:
+        batch_size: 2
+val:
+    loader_params:
+        batch_size: 2
+test:
+    split: val
+    loader_params:
+        batch_size: 4
+    evaluators:
+        classify:
+            target: mt_pipe.src.evaluators.SegmentationEvaluator
+
+    
