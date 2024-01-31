@@ -10,6 +10,9 @@ from .util.data import get_9_pt_flow, warp_image
 
 
 class ISBISegment(Dataset):
+    valid_splits = ["train", "val"]
+    split_ratio = [0.8, 0.2]
+
     def __init__(
         self,
         root: str,
@@ -19,22 +22,30 @@ class ISBISegment(Dataset):
         do_aug: bool = True,
         warp_std: float = 10.0,
     ) -> None:
+        assert split in self.valid_splits
         self.root = root
         self.split = split
-        self.img_paths = sorted(
+        img_paths = sorted(
             [
                 p
                 for p in glob.glob(os.path.join(root, "images/**"), recursive=True)
                 if os.path.isfile(p)
             ]
         )
-        self.seg_paths = sorted(
+        seg_paths = sorted(
             [
                 p
                 for p in glob.glob(os.path.join(root, "labels/**"), recursive=True)
                 if os.path.isfile(p)
             ]
         )
+        if split == "train":
+            self.img_paths = img_paths[: int(len(img_paths) * self.split_ratio[0])]
+            self.seg_paths = seg_paths[: int(len(seg_paths) * self.split_ratio[0])]
+        else:
+            self.img_paths = img_paths[int(len(img_paths) * self.split_ratio[0]) :]
+            self.seg_paths = seg_paths[int(len(seg_paths) * self.split_ratio[0]) :]
+
         pad_hw = [int((p - r) / 2) for r, p in zip(rsz_hw, pad_hw)]
         self.img_trans = Compose(
             [

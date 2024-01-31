@@ -12,6 +12,10 @@ loss:
 optimizer:
     target: torch.optim.Adam
 train:
-    epochs: 20
+    epochs: 2000
+    tollerance: 10
+    loader_params:
+        batch_size: 2
+val:
     loader_params:
         batch_size: 2
