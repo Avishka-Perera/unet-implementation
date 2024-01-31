@@ -120,11 +120,19 @@ class UNet(nn.Module):
         self.n_out = n_out
         self.cont_path = Contractive()
         self.expa_path = Expansive(n_out=n_out)
+        self.initialize_weights()
         self.device = None
 
     def set_devices(self, devices: Sequence[int]) -> None:
         self.device = devices[0]
         self.to(devices[0])
+
+    def initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode="fan_in", nonlinearity="relu")
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
 
     def forward(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         if self.device is not None:
