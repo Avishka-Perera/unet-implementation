@@ -16,12 +16,7 @@ class SegmentCrossEntropy:
         self, info: Dict[str, torch.Tensor], batch: Dict[str, torch.Tensor]
     ) -> Dict[str, torch.Tensor]:
         lbl = batch["seg"]
-        lbl = lbl[
-            ...,
-            self.subject_region[1] : self.subject_region[3],
-            self.subject_region[0] : self.subject_region[2],
-        ]
-        logits = info["seg"]
+        logits = info["logits"]
 
         if self.device is not None:
             lbl = lbl.to(self.device)

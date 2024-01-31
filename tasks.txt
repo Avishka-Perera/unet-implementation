@@ -1,2 +1,2 @@
-make the evaluations
+segmentation visualizations
 make the weight maps

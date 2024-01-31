@@ -134,4 +134,4 @@ class UNet(nn.Module):
         feat_pyr = self.cont_path(img)
         seg = self.expa_path(feat_pyr)
 
-        return {"seg": seg}
+        return {"logits": seg}

@@ -19,3 +19,12 @@ train:
 val:
     loader_params:
         batch_size: 2
+test:
+    split: val
+    loader_params:
+        batch_size: 4
+    evaluators:
+        classify:
+            target: mt_pipe.src.evaluators.SegmentationEvaluator
+
+    

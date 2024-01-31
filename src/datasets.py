@@ -9,6 +9,7 @@ import numpy as np
 from .util.data import get_9_pt_flow, warp_image
 
 
+# http://celltrackingchallenge.net/2d-datasets/
 class ISBISegment(Dataset):
     valid_splits = ["train", "val"]
     split_ratio = [0.8, 0.2]
@@ -20,6 +21,7 @@ class ISBISegment(Dataset):
         rsz_hw: Sequence[int] = [388, 388],
         pad_hw: Sequence[int] = [572, 572],
         do_aug: bool = True,
+        trim_seg: bool = True,
         warp_std: float = 10.0,
     ) -> None:
         assert split in self.valid_splits
@@ -67,6 +69,7 @@ class ISBISegment(Dataset):
             rsz_hw[0] + pad_hw[0],
         )
         self.do_aug = do_aug
+        self.trim_seg = trim_seg
         self.warp_std = warp_std
 
     def __len__(self) -> int:
@@ -100,6 +103,11 @@ class ISBISegment(Dataset):
         img = (img / 255).astype(np.float32)
         seg[seg < 0.5] = 0
         seg[seg >= 0.5] = 1
+        if self.trim_seg:
+            seg = seg[
+                self.subject_region[1] : self.subject_region[3],
+                self.subject_region[0] : self.subject_region[2],
+            ]
 
         img = self.to_tensor(img)
         seg = self.to_tensor(seg)
