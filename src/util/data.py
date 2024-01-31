@@ -1,37 +1,47 @@
 import numpy as np
+from skimage.transform import resize
 from scipy.ndimage import map_coordinates
 
 
-# TODO: use the warping object
-def elastic_deformation(image, sigma=10, alpha=30, points=3):
-    """Applies elastic deformation to an image.
+def warp_image(image, flow):
+    height, width = image.shape[0], image.shape[1]
+    y, x = np.meshgrid(np.arange(height), np.arange(width), indexing="ij")
 
-    Args:
-        image: The input image as a NumPy array.
-        sigma: Standard deviation of the Gaussian displacement distribution.
-        alpha: Maximum displacement distance (in pixels).
-        points: Number of grid points along each dimension (default: 3).
+    # Apply the flow field to the coordinates
+    y_warped = y + flow[..., 0]
+    x_warped = x + flow[..., 1]
 
-    Returns:
-        The deformed image as a NumPy array.
-    """
+    # Clip the coordinates to stay within the image boundaries
+    y_warped = np.clip(y_warped, 0, height - 1)
+    x_warped = np.clip(x_warped, 0, width - 1)
 
-    shape = image.shape[:2]  # Extract image dimensions
+    # Interpolate the values using map_coordinates
+    warped_image = map_coordinates(
+        image[..., 0], (y_warped, x_warped), order=1, mode="reflect"
+    )
 
-    # Create a displacement grid with shape (points, points, 2)
-    grid_x, grid_y = np.mgrid[0:points, 0:points]
-    grid_x = (grid_x.astype(np.float32) / (points - 1)) * shape[1]
-    grid_y = (grid_y.astype(np.float32) / (points - 1)) * shape[0]
-    print(grid_x)
+    # Reshape the result to match the input shape
+    warped_image = warped_image.reshape((height, width, 1))
 
-    # Generate random displacement vectors within a specified range
-    displacement_x = np.random.randn(*grid_x.shape) * sigma
-    displacement_y = np.random.randn(*grid_y.shape) * sigma
-    displacement = np.stack([displacement_x, displacement_y], axis=-1)
-    displacement *= alpha / np.max(displacement)  # Normalize for control
+    return warped_image
 
-    # Apply bicubic interpolation to compute displacements for all pixels
-    map_x, map_y = map_coordinates(displacement, (grid_y, grid_x), order=3)
-    deformed_image = map_coordinates(image, (map_y, map_x), order=3).reshape(shape)
 
-    return deformed_image
+def get_9_pt_flow(shape, std=10):
+    original_array = np.random.randn(3, 3, 2) * std
+    pad_size = 1
+    padded_array = np.pad(
+        original_array,
+        ((pad_size, pad_size), (pad_size, pad_size), (0, 0)),
+        mode="constant",
+        constant_values=0,
+    )
+    target_shape = (*shape, 2)
+    resized_array = resize(padded_array, target_shape, mode="edge", anti_aliasing=True)
+    return resized_array
+
+
+def random_warp(img, std=10):
+    shape = img.shape[-2:]
+    flow = get_9_pt_flow(shape, std=std)
+    warped_img = warp_image(img, flow)
+    return warped_img

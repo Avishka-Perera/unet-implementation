@@ -1,3 +1,2 @@
-do the training
-make the augmentations
+make the evaluations
 make the weight maps

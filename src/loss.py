@@ -1,17 +1,26 @@
-from typing import Dict
+from typing import Dict, Tuple
 from torch import nn
 import torch
 
 
 class SegmentCrossEntropy:
-    def __init__(self, device: int = None) -> None:
+    def __init__(
+        self, device: int = None, subject_region: Tuple[int, int, int, int] = None
+    ) -> None:
+        assert subject_region != None
         self.loss_fn = nn.CrossEntropyLoss()
         self.device = device
+        self.subject_region = subject_region
 
     def __call__(
         self, info: Dict[str, torch.Tensor], batch: Dict[str, torch.Tensor]
     ) -> Dict[str, torch.Tensor]:
         lbl = batch["seg"]
+        lbl = lbl[
+            ...,
+            self.subject_region[1] : self.subject_region[3],
+            self.subject_region[0] : self.subject_region[2],
+        ]
         logits = info["seg"]
 
         if self.device is not None:
