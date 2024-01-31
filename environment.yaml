@@ -1,0 +1,23 @@
+name: unet
+channels:
+    - defaults
+dependencies:
+    - python=3.10
+    - pip=23.3.1
+    - pip:
+          - ipykernel
+          - ipywidgets
+          - torch==2.1.2
+          - torchvision==0.16.2
+          - omegaconf==2.3.0
+          - matplotlib=3.8.2
+          - timm==0.9.2
+          - segmentation-models-pytorch==0.3.3
+          - omegaconf==2.3.0
+          - sagemaker==2.205.0
+          - tensorboard==2.15.1
+          - seaborn==0.13.2
+          - scikit-learn==1.4.0
+          - pytorch-msssim==1.0.0
+          - lightly==1.4.26
+          - opencv-python==4.9.0.80
