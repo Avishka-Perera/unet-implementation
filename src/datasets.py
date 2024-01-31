@@ -140,6 +140,10 @@ class ISBISegment(Base):
                 self.subject_region[1] : self.subject_region[3],
                 self.subject_region[0] : self.subject_region[2],
             ]
+        img_orig = img[
+            self.subject_region[1] : self.subject_region[3],
+            self.subject_region[0] : self.subject_region[2],
+        ]
 
         img = self.to_tensor(img)
         seg = self.to_tensor(seg)
@@ -147,7 +151,7 @@ class ISBISegment(Base):
 
         # TODO: load weight maps
 
-        return {"img": img, "seg": seg}
+        return {"img": img, "seg": seg, "img_orig": img_orig}
 
 
 class ISBICellTrack(Base):
@@ -191,6 +195,10 @@ class ISBICellTrack(Base):
                 self.subject_region[1] : self.subject_region[3],
                 self.subject_region[0] : self.subject_region[2],
             ]
+        img_orig = img[
+            self.subject_region[1] : self.subject_region[3],
+            self.subject_region[0] : self.subject_region[2],
+        ]
 
         img = self.to_tensor(img)
         seg = self.to_tensor(seg)
@@ -198,4 +206,4 @@ class ISBICellTrack(Base):
 
         # TODO: load weight maps
 
-        return {"img": img, "seg": seg}
+        return {"img": img, "seg": seg, "img_orig": img_orig}

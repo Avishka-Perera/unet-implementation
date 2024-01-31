@@ -24,7 +24,9 @@ test:
     loader_params:
         batch_size: 4
     evaluators:
-        classify:
+        segment:
             target: mt_pipe.src.evaluators.SegmentationEvaluator
+            params:
+                batch_img_key: img_orig
 
     
