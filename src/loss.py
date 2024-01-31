@@ -9,7 +9,7 @@ class SegmentCrossEntropy:
         self.device = device
 
     def __call__(
-        self, batch: Dict[str, torch.Tensor], info: Dict[str, torch.Tensor]
+        self, info: Dict[str, torch.Tensor], batch: Dict[str, torch.Tensor]
     ) -> Dict[str, torch.Tensor]:
         lbl = batch["seg"]
         logits = info["seg"]

@@ -1,0 +1,15 @@
+name: train
+data:
+    target: src.datasets.ISBISegment
+    params:
+        root: ISBI-2012-challenge
+learner: 
+    target: src.learner.UNet
+loss:
+    target: src.loss.SegmentCrossEntropy
+optimizer:
+    target: torch.optim.Adam
+train:
+    epochs: 20
+    loader_params:
+        batch_size: 2
