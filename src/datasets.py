@@ -9,8 +9,10 @@ import numpy as np
 from .util.data import get_9_pt_flow, warp_image
 
 
-# http://celltrackingchallenge.net/2d-datasets/
-class ISBISegment(Dataset):
+# Downloaded from https://github.com/hoangp/isbi-datasets/tree/master (ISBI EM) and http://celltrackingchallenge.net/2d-datasets/ (DIC-HeLa and PhC-U373)
+
+
+class Base(Dataset):
     valid_splits = ["train", "val"]
     split_ratio = [0.8, 0.2]
 
@@ -23,21 +25,27 @@ class ISBISegment(Dataset):
         do_aug: bool = True,
         trim_seg: bool = True,
         warp_std: float = 10.0,
+        img_dirs=["images"],
+        lbl_dirs=["labels"],
     ) -> None:
         assert split in self.valid_splits
+        assert len(img_dirs) == len(lbl_dirs)
+
         self.root = root
         self.split = split
         img_paths = sorted(
             [
                 p
-                for p in glob.glob(os.path.join(root, "images/**"), recursive=True)
+                for dir in img_dirs
+                for p in glob.glob(os.path.join(root, dir, "**"), recursive=True)
                 if os.path.isfile(p)
             ]
         )
         seg_paths = sorted(
             [
                 p
-                for p in glob.glob(os.path.join(root, "labels/**"), recursive=True)
+                for dir in lbl_dirs
+                for p in glob.glob(os.path.join(root, dir, "**"), recursive=True)
                 if os.path.isfile(p)
             ]
         )
@@ -92,6 +100,30 @@ class ISBISegment(Dataset):
         img1, img2 = self._warp_pair(img1, img2)
         return img1, img2
 
+
+class ISBISegment(Base):
+    def __init__(
+        self,
+        root: str,
+        split: str = "train",
+        rsz_hw: Sequence[int] = [388, 388],
+        pad_hw: Sequence[int] = [572, 572],
+        do_aug: bool = True,
+        trim_seg: bool = True,
+        warp_std: float = 10,
+    ) -> None:
+        super().__init__(
+            root,
+            split,
+            rsz_hw,
+            pad_hw,
+            do_aug,
+            trim_seg,
+            warp_std,
+            img_dirs=["images"],
+            lbl_dirs=["labels"],
+        )
+
     def __getitem__(self, index) -> Sequence[torch.Tensor]:
         img = Image.open(self.img_paths[index]).convert("L")
         img = np.array(self.img_trans(img))[..., np.newaxis]
@@ -100,6 +132,57 @@ class ISBISegment(Dataset):
         if self.do_aug:
             img, seg = self._random_aug(img, seg)
         seg = (seg / 255).astype(np.float32)
+        img = (img / 255).astype(np.float32)
+        seg[seg < 0.5] = 0
+        seg[seg >= 0.5] = 1
+        if self.trim_seg:
+            seg = seg[
+                self.subject_region[1] : self.subject_region[3],
+                self.subject_region[0] : self.subject_region[2],
+            ]
+
+        img = self.to_tensor(img)
+        seg = self.to_tensor(seg)
+        seg = seg.long()
+
+        # TODO: load weight maps
+
+        return {"img": img, "seg": seg}
+
+
+class ISBICellTrack(Base):
+    def __init__(
+        self,
+        root: str,
+        split: str = "train",
+        rsz_hw: Sequence[int] = [388, 388],
+        pad_hw: Sequence[int] = [572, 572],
+        do_aug: bool = True,
+        trim_seg: bool = True,
+        warp_std: float = 10,
+    ) -> None:
+        super().__init__(
+            root,
+            split,
+            rsz_hw,
+            pad_hw,
+            do_aug,
+            trim_seg,
+            warp_std,
+            img_dirs=["01", "02"],
+            lbl_dirs=["01_ST/SEG", "02_ST/SEG"],
+        )
+
+    def __getitem__(self, index) -> Sequence[torch.Tensor]:
+        img = Image.open(self.img_paths[index]).convert("L")
+        img = np.array(self.img_trans(img))[..., np.newaxis]
+        seg_tmp = Image.open(self.seg_paths[index])
+        seg_tmp = np.array(self.seg_trans(seg_tmp))
+        seg = np.ones(seg_tmp.shape).astype(np.float32)
+        seg[seg_tmp == 0] = 0
+        seg = seg[..., np.newaxis]
+        if self.do_aug:
+            img, seg = self._random_aug(img, seg)
         img = (img / 255).astype(np.float32)
         seg[seg < 0.5] = 0
         seg[seg >= 0.5] = 1
