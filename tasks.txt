@@ -1,2 +1,1 @@
-segmentation visualizations
 make the weight maps
