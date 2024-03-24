@@ -1,6 +1,6 @@
 # U-Net Re-Implementation with PyTorch
 
-This implementation is based on the ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/abs/1505.04597) paper that was published at MICCAI 2015. U-Net was proposed for segmentation tasks. But now, it is the go-to architecture for most dense prediction tasks including depth prediction and flow estimation.
+This implementation is based on the "U-Net: Convolutional Networks for Biomedical Image Segmentation" paper that was published at MICCAI 2015. U-Net was initially proposed for segmentation tasks. But now, it is the go-to architecture for most dense prediction tasks including depth prediction and flow estimation.
 
 ## Setup
 
@@ -39,19 +39,19 @@ This repository uses the [multitask-pipeline](https://github.com/Avishka-Perera/
 
 In the following image, yellow borders represent the ground truth segmentation, while the cyan overlay represents the model prediction.
 
-![PhC-U373 Training set](images/phc-train.png)
+![PhC-U373 Training set](imgs/phc-train.png)
 
     PhC-U373 Training set; IoU: 96.5%
 
-![PhC-U373 Validation set](images/phc-val.png)
+![PhC-U373 Validation set](imgs/phc-val.png)
 
     PhC-U373 Validation set; IoU: 96.0%
 
-![DIC-HeLa Training set](images/dic-train.png)
+![DIC-HeLa Training set](imgs/dic-train.png)
 
     DIC-HeLa Training set; IoU: 68.0%
 
-![DIC-HeLa Validation set](images/dic-val.png)
+![DIC-HeLa Validation set](imgs/dic-val.png)
 
     DIC-HeLa Validation set; IoU: 68.7%
 
